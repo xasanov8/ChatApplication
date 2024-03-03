@@ -9,8 +9,8 @@ namespace ChatApplicationAPI.Domain.Entities.Models
     public class SendMessage
     {
         public int Id { get; set; }
-        public int MeId { get; set; }
-        public int UserId { get; set; }
+        public string MeUsername { get; set; }
+        public string YouUsername { get; set; }
         public string StringMessage { get; set; }
         public string Path { get; set; }
     }

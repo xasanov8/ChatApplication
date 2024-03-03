@@ -82,7 +82,7 @@ namespace ChatApplicationAPI.Application.Services.AuthServices
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_conf["JWT:Secret"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var exDate = Convert.ToInt32(_conf["JWT:ExpireDate"] ?? "10");
+            var exDate = Convert.ToInt32(_conf["JWT:ExpireDate"] ?? "1");
 
             var claims = new List<Claim>
             {
@@ -98,7 +98,7 @@ namespace ChatApplicationAPI.Application.Services.AuthServices
                 issuer: _conf["JWT:ValidIssuer"],
                 audience: _conf["JWT:ValidAudience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(exDate),
+                expires: DateTime.UtcNow.AddDays(exDate),
                 signingCredentials: credentials);
 
             return new ResponseLogin()

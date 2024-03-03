@@ -8,7 +8,7 @@ namespace ChatApplicationAPI.Domain.Entities.DTOs
 {
     public class SendMessageDTO
     {
-        public int UserId { get; set; }
+        public string YouUsername { get; set; }
         public string StringMessage { get; set; }
     }
 }

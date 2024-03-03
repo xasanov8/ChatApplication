@@ -17,14 +17,10 @@ namespace ChatApplicationAPI.Application.Services.UserServices
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        public CancellationToken _ct;
-        private readonly IChatApplicationApiDbContext _context;
 
-        public UserService(IUserRepository userRepository, IChatApplicationApiDbContext context, CancellationToken ct)
+        public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _context = context;
-            _ct = ct;
         }
 
         public async Task<string> Create(UserDTO userDTO)
@@ -97,36 +93,35 @@ namespace ChatApplicationAPI.Application.Services.UserServices
             var result = await _userRepository.GetByAny(x => x.Id == Id);
             if (result != null)
             {
-                if ((await _userRepository.GetByAny(x => x.PhoneNumber == userDTO.PhoneNumber)) == null)
+                var check = await _userRepository.GetByAny(x => x.PhoneNumber == userDTO.PhoneNumber);
+                if (check == null)
                 {
                     if ((await _userRepository.GetByAny(x => x.Username == userDTO.Username)) == null)
                     {
-                        var res = await _context.Users.FirstOrDefaultAsync(x => x.Id == Id);
+                        result.FullName = userDTO.FullName;
+                        result.PhoneNumber = userDTO.PhoneNumber;
+                        result.Username = userDTO.Username;
+                        result.Password = userDTO.Password;
+                        result.Role = userDTO.Role;
 
-                        res.FullName = userDTO.FullName;
-                        res.PhoneNumber = userDTO.PhoneNumber;
-                        res.Username = userDTO.Username;
-                        res.Password = userDTO.Password;
-                        res.Role = userDTO.Role;
-
-                        await _context.SaveChangesAsync(_ct);
+                        await _userRepository.Update(result);
 
                         return "Update User";
                     }
-                    return "Dublicate Login";
+                    return "Dublicate UserName";
                 }
-                return "Dublicate Email";
+                return "Dublicate PhoneNumber"; 
             }
             return "No such id exists";
         }
 
         public async Task<string> UpdateFullName(int id, string name)
         {
-            var result = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var result = await _userRepository.GetByAny(x => x.Id == id);
             if (result != null)
             {
                 result.FullName = name;
-                await _context.SaveChangesAsync(_ct);
+                await _userRepository.Update(result);
                 return "Update FullName";
             }
             return "No such id exists";
@@ -134,23 +129,28 @@ namespace ChatApplicationAPI.Application.Services.UserServices
 
         public async Task<string> UpdatePhoneNumber(int id, string phoneNumber)
         {
-            var result = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var result = await _userRepository.GetByAny(x => x.Id == id);
+
             if (result != null)
             {
-                result.PhoneNumber = phoneNumber;
-                await _context.SaveChangesAsync(_ct);
-                return "Update PhoneNumber";
+                if (_userRepository.GetByAny(x => x.PhoneNumber == phoneNumber).Result == null)
+                {
+                    result.PhoneNumber = phoneNumber;
+                    await _userRepository.Update(result);
+                    return "Update PhoneNumber";
+                }
+                return "Drop PhoneNumber";
             }
             return "No such id exists";
         }
 
         public async Task<string> UpdatePassword(int id, string password)
         {
-            var result = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var result = await _userRepository.GetByAny(x => x.Id == id);
             if (result != null)
             {
                 result.Password = password;
-                await _context.SaveChangesAsync(_ct);
+                await _userRepository.Update(result);
                 return "Update Password";
             }
             return "No such id exists";
@@ -158,12 +158,16 @@ namespace ChatApplicationAPI.Application.Services.UserServices
 
         public async Task<string> UpdateUserName(int id, string username)
         {
-            var result = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var result = await _userRepository.GetByAny(x=> x.Id == id);
             if (result != null)
             {
-                result.Username = username;
-                await _context.SaveChangesAsync(_ct);
-                return "Update UserName";
+                if (_userRepository.GetByAny(x => x.Username == username).Result == null)
+                {
+                    result.Username = username;
+                    await _userRepository.Update(result);
+                    return "Update UserName";
+                }
+                return "Drop UserName";
             }
             return "No such id exists";
         }

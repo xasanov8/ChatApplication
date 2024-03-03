@@ -16,10 +16,9 @@ namespace ChatApplicationAPI.Domain.Enums
         UpdateFullName = 4,
         UpdatePhoneNumber = 5,
         UpdateUserName = 6,
-        UpadetPassword = 7,
+        UpdatePassword = 7,
         
-        UpdateUserRole = 8,
-        UpdateAdminRole = 9,
+        UpdateRole = 9,
 
         SpamUser = 10,
         SpamAdmin = 11,

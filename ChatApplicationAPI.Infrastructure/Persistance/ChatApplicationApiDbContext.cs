@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ChatApplicationAPI.Infrastructure.Persistance
 {
-    public class ChatApplicationApiDbContext : DbContext, IChatApplicationApiDbContext
+    public class ChatApplicationApiDbContext : DbContext
     {
         public ChatApplicationApiDbContext(DbContextOptions<ChatApplicationApiDbContext> options)
             : base(options)
@@ -19,10 +19,5 @@ namespace ChatApplicationAPI.Infrastructure.Persistance
 
         public DbSet<User> Users { get; set; }
         public DbSet<SendMessage> SendMessages { get; set; }
-
-        public async ValueTask<int> SaveChangesAsync(CancellationToken cancellation)
-        {
-            return await SaveChangesAsync(cancellation);
-        }
     }
 }

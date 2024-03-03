@@ -69,6 +69,10 @@ namespace ChatApplicationAPI.Infrastructure.Repositories
             try
             {
                 var result = _dbSet.Select(x => x).Where(expression);
+                if (result == null)
+                {
+                    return null;
+                }
                 return result;
             }
             catch (Exception ex)

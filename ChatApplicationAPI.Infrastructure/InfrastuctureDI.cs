@@ -12,7 +12,7 @@ namespace ChatApplicationAPI.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<IChatApplicationApiDbContext, ChatApplicationApiDbContext>(options =>
+            services.AddDbContext<ChatApplicationApiDbContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("FutureProjectsConnectionString"));
             });

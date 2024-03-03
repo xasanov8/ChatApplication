@@ -1,6 +1,8 @@
 ﻿using ChatApplicationAPI.Application.Abstractions.IRepositories;
 using ChatApplicationAPI.Domain.Entities.DTOs;
 using ChatApplicationAPI.Domain.Entities.Models;
+using ChatApplicationAPI.Domain.Entities.ViewModels;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,26 +15,50 @@ namespace ChatApplicationAPI.Application.Services.SendMessageServices
     public class SendMessageService : ISendMessageService
     {
         private readonly ISendMessageRepository _repository;
-        public SendMessageService(ISendMessageRepository repository)
+        private readonly IUserRepository _userRepository;
+        public SendMessageService(ISendMessageRepository repository, IUserRepository userRepository)
         {
             _repository = repository;
+            _userRepository = userRepository;
         }
         public async Task<string> AddSendMessage(int id, SendMessageDTO messageDTO, string path)
         {
-            
-            var model = new SendMessage()
+            if (messageDTO != null)
             {
-                MeId = id,
-                UserId = messageDTO.UserId,
-                StringMessage = messageDTO.StringMessage,
-                Path = path
-            };
+                if (_userRepository.GetByAny(x => x.Id == id).Result != null && _userRepository.GetByAny(x => x.Username == messageDTO.YouUsername).Result != null) 
+                {          
+                    var model = new SendMessage()
+                    {
+                        MeUsername = _userRepository.GetByAny(x => x.Id == id).Result.Username,
+                        YouUsername = messageDTO.YouUsername,
+                        StringMessage = messageDTO.StringMessage,
+                        Path = path
+                    };
 
-            var result = _repository.Create(model);
+                    var result = await _repository.Create(model);
 
-            return "Accepted";
+                    return "Accepted";
+                }
+                return "Error Model Colums";
+            }
+            return "Model null";
         }
-        //public async Task<IEnumerable<SendMessageDTO>> GetAll
+        
+        public async Task<IEnumerable<SendMessage>> GetAllChats(int id, string YouUsername)
+        {
+            var MeUserName = await _userRepository.GetByAny(x => x.Id == id);
+
+            var messages = await _repository.GetByAll(x =>
+            (x.MeUsername == MeUserName.Username && x.YouUsername == YouUsername) ||
+            (x.MeUsername == YouUsername && x.YouUsername == MeUserName.Username)
+                );
+
+            if (messages != null)
+            {
+                return messages;
+            }
+            return null;
+        }
 
     }
 }

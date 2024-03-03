@@ -2,6 +2,8 @@
 using ChatApplicationAPI.Application.Services.SendMessageServices;
 using ChatApplicationAPI.Domain.Entities.DTOs;
 using ChatApplicationAPI.Domain.Entities.Models;
+using ChatApplicationAPI.Domain.Entities.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,6 +13,7 @@ namespace ChatApplicationAPI.Api.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class SendMessageController : ControllerBase
     {
         private readonly ISendMessageService _messageService;
@@ -33,6 +36,15 @@ namespace ChatApplicationAPI.Api.Controllers
             var result = _messageService.AddSendMessage(id, sendMessageDTO, picturePath).Result;
 
             return Ok(result);
+        }
+        [HttpGet]
+        public async Task<IEnumerable<SendMessage>> GetAllMessages(string token, string YouUsername)
+        {
+            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+
+            var result = await _messageService.GetAllChats(id, YouUsername);
+
+            return result;
         }
 
         private string DecodeJwtToken(string token, string secretKey)
