@@ -70,6 +70,10 @@ namespace ChatApplicationAPI.Application.Services.SendMessageServices
             (x.Id == MessageId)
                 );
 
+            if (message.MeUsername != MeUserName.Username)
+            { 
+                return "Error Un Your Message";
+            }
 
             if (message != null)
             {
@@ -92,6 +96,11 @@ namespace ChatApplicationAPI.Application.Services.SendMessageServices
             (x.MeUsername == YouUsername && x.YouUsername == MeUserName.Username)) && 
             (x.Id == MessageId)
                 );
+
+            if (message.MeUsername != MeUserName.Username)
+            {
+                return false;
+            }
 
 
             if (message != null)

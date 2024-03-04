@@ -1,4 +1,4 @@
-﻿using ChatApplicationAPI.Application.Services.UserServices;
+﻿ using ChatApplicationAPI.Application.Services.UserServices;
 using ChatApplicationAPI.Domain.Entities.DTOs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -43,15 +43,11 @@ namespace ChatApplicationAPI.Application.Services.AuthServices
 
                 if (result.Role == "User")
                 {
-                    permissions = new List<int>() { 2, 3, 4, 5, 6, 7 };
+                    permissions = new List<int>() { 1, 2, 3, 4, 5, 6, 8, 9, 10, 11 };
                 }
                 else if (result.Role == "Admin")
                 {
-                    permissions = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 11, 13 };
-                }
-                else if (result.Role == "Director")
-                {
-                    permissions = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
+                    permissions = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
                 }
 
                 var jsonContent = JsonSerializer.Serialize(permissions);
@@ -114,6 +110,8 @@ namespace ChatApplicationAPI.Application.Services.AuthServices
         {
 
             var result = await _userService.GetByAny(x => x.PhoneNumber == user.PhoneNumber);
+
+            if (result == null) return false;
 
             if (user.PhoneNumber == result.PhoneNumber && user.Password == result.Password)
             {

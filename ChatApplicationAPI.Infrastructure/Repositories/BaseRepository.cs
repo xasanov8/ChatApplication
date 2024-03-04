@@ -31,15 +31,42 @@ namespace ChatApplicationAPI.Infrastructure.Repositories
 
         public async Task<bool> Delete(Expression<Func<T, bool>> expression)
         {
-            var result = await _dbSet.FirstOrDefaultAsync(expression);
-            if (result == null)
+            try
+            {
+                var result = await _dbSet.FirstOrDefaultAsync(expression);
+                if (result == null)
+                {
+                    return false;
+                }
+
+                _dbSet.Remove(result);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
             {
                 return false;
             }
-            _dbSet.Remove(result);
-            await _context.SaveChangesAsync();
+        }
 
-            return true;
+        public async Task<bool> DeleteMany(Expression<Func<T, bool>> expression)
+        {
+            try
+            {
+                var entitiesToDelete = await _dbSet.Where(expression).ToListAsync();
+                if(entitiesToDelete.Count  == 0)
+                {
+                    return false;
+                }
+                _dbSet.RemoveRange(entitiesToDelete);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public async Task<IEnumerable<T>> GetAll()

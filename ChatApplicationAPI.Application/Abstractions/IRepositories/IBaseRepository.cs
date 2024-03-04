@@ -14,6 +14,7 @@ namespace ChatApplicationAPI.Application.Abstractions.IRepositories
         public Task<IEnumerable<T>> GetByAll(Expression<Func<T, bool>> expression);
         public Task<IEnumerable<T>> GetAll();
         public Task<bool> Delete(Expression<Func<T, bool>> expression);
+        public Task<bool> DeleteMany(Expression<Func<T, bool>> expression);
         public Task<T> Update(T entity);
     }
 }

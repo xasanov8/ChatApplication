@@ -11,7 +11,6 @@ namespace ChatApplicationAPI.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class CreatUserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -21,10 +20,9 @@ namespace ChatApplicationAPI.Api.Controllers
         }
 
         [HttpPost]
-        [IdentityFilter(Permisson.CreateUser)]
         public async Task<ActionResult<string>> CreateUser([FromForm] UserDTO userDTO)
         {
-            var result = await _userService.Create(userDTO);    
+            var result = await _userService.Create(userDTO);
 
             return Ok(result);
         }

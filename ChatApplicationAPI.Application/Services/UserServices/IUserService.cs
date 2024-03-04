@@ -19,7 +19,7 @@ namespace ChatApplicationAPI.Application.Services.UserServices
         //public Task<IEnumerable<UserViewModel>> GetByRole(string role);
         public Task<User> GetByAny(Expression<Func<User, bool>> expression);
 
-        public Task<bool> DeleteById(int id);
+        public Task<bool> DeleteUserById(int id);
         public Task<bool> Delete(Expression<Func<User, bool>> expression);
 
         public Task<string> Update(int Id, UserDTO userDTO);

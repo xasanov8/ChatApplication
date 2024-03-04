@@ -12,6 +12,6 @@ namespace ChatApplicationAPI.Domain.Entities.Models
         public string MeUsername { get; set; }
         public string YouUsername { get; set; }
         public string StringMessage { get; set; }
-        public string Path { get; set; }
+        public string Path { get; set; } 
     }
 }

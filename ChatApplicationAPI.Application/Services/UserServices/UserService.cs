@@ -1,4 +1,5 @@
 ﻿using ChatApplicationAPI.Application.Abstractions.IRepositories;
+using ChatApplicationAPI.Application.Services.SendMessageServices;
 using ChatApplicationAPI.Domain.Entities.DTOs;
 using ChatApplicationAPI.Domain.Entities.Models;
 using ChatApplicationAPI.Domain.Entities.ViewModels;
@@ -17,10 +18,14 @@ namespace ChatApplicationAPI.Application.Services.UserServices
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ISendMessageRepository _messageRepository;
+        private readonly ISendMessageService _sendMessageService;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, ISendMessageRepository messageRepository, ISendMessageService sendMessageService)
         {
             _userRepository = userRepository;
+            _messageRepository = messageRepository;
+            _sendMessageService = sendMessageService;
         }
 
         public async Task<string> Create(UserDTO userDTO)
@@ -71,12 +76,34 @@ namespace ChatApplicationAPI.Application.Services.UserServices
             return result;
         }
 
-        public async Task<bool> DeleteById(int id)
+        public async Task<bool> DeleteUserById(int id)
         {
-            var result = await _userRepository.Delete(x => x.Id == id);
+            try
+            {
+                var user = await _userRepository.GetByAny(x => x.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
 
-            return result;
+                await _messageRepository.DeleteMany(x => x.MeUsername == user.Username);
+
+                await _messageRepository.DeleteMany(x => x.YouUsername == user.Username);
+
+                // Delete the user
+                var userDeleted = await _userRepository.Delete(x => x.Id == id);
+
+                return userDeleted;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return false;
+            }
+
         }
+
+
 
         public async Task<bool> Delete(Expression<Func<User, bool>> expression)
         {
@@ -110,7 +137,7 @@ namespace ChatApplicationAPI.Application.Services.UserServices
                     }
                     return "Dublicate UserName";
                 }
-                return "Dublicate PhoneNumber"; 
+                return "Dublicate PhoneNumber";
             }
             return "No such id exists";
         }
@@ -158,7 +185,7 @@ namespace ChatApplicationAPI.Application.Services.UserServices
 
         public async Task<string> UpdateUserName(int id, string username)
         {
-            var result = await _userRepository.GetByAny(x=> x.Id == id);
+            var result = await _userRepository.GetByAny(x => x.Id == id);
             if (result != null)
             {
                 if (_userRepository.GetByAny(x => x.Username == username).Result == null)

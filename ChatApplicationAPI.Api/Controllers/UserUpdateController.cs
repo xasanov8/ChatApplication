@@ -23,8 +23,11 @@ namespace ChatApplicationAPI.Api.Controllers
         }
 
         [HttpPatch("UserUpdate")]
-        public async Task<ActionResult<string>> Update(int id, UserDTO model)
+        [IdentityFilter(Permisson.UserUpdate)]
+        public async Task<ActionResult<string>> Update([FromForm] UserDTO model)
         {
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("Id").Value);
+
             var result = await _userService.Update(id, model);
 
             return Ok(result);
@@ -32,9 +35,10 @@ namespace ChatApplicationAPI.Api.Controllers
 
         [HttpPatch("UpdateFullName")]
         [IdentityFilter(Permisson.UpdateFullName)]
-        public async Task<ActionResult<string>> UpdateFullName(string token, string name)
+        public async Task<ActionResult<string>> UpdateFullName(string name)
         {
-            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("Id").Value);
+
             var result = await _userService.UpdateFullName(id, name);
 
             return Ok(result);
@@ -42,9 +46,9 @@ namespace ChatApplicationAPI.Api.Controllers
 
         [HttpPatch("UpdateUserName")]
         [IdentityFilter(Permisson.UpdateUserName)]
-        public async Task<ActionResult<string>> UpdateLogin(string token, string username)
+        public async Task<ActionResult<string>> UpdateLogin(string username)
         {
-            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("Id").Value);
             var result = await _userService.UpdateUserName(id, username);
 
             return Ok(result);
@@ -52,9 +56,9 @@ namespace ChatApplicationAPI.Api.Controllers
 
         [HttpPatch("UpdatePassword")]
         [IdentityFilter(Permisson.UpdatePassword)]
-        public async Task<ActionResult<string>> UpdatePassword(string token, string password)
+        public async Task<ActionResult<string>> UpdatePassword(string password)
         {
-            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("Id").Value);
             var result = await _userService.UpdatePassword(id, password);
 
             return Ok(result);
@@ -62,9 +66,9 @@ namespace ChatApplicationAPI.Api.Controllers
 
         [HttpPatch("UpdatePhoneNumber")]
         [IdentityFilter(Permisson.UpdatePhoneNumber)]
-        public async Task<ActionResult<string>> UpdatePhoneNumber(string token, string phoneNumber)
+        public async Task<ActionResult<string>> UpdatePhoneNumber(string phoneNumber)
         {
-            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("Id").Value);
             var result = await _userService.UpdatePhoneNumber(id, phoneNumber);
 
             return Ok(result);
@@ -77,36 +81,5 @@ namespace ChatApplicationAPI.Api.Controllers
 
             return Ok(result);
         }*/
-
-        private string DecodeJwtToken(string token, string secretKey)
-        {
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(secretKey);
-
-                // Configure Token Validation Parameters
-                var tokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-
-                // Decode Token
-                var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
-
-                // Extract ID from claims
-                var id = claimsPrincipal.FindFirst("Id").Value;
-
-                return id;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error decoding JWT token: " + ex.Message);
-                return null;
-            }
-        }
     }
 }

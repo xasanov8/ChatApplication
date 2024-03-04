@@ -25,7 +25,7 @@ namespace ChatApplicationAPI.Api.Controllers
         }
 
         [HttpGet("GetAll")]
-        [IdentityFilter(Permisson.GetAll)]
+        [IdentityFilter(Permisson.GetAllUsers)]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
         {
             var result = await _userService.GetAll();
