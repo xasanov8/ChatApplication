@@ -13,7 +13,7 @@ namespace ChatApplicationAPI.Application.Services.SendMessageServices
     {
         public Task<string> AddSendMessage(int id, SendMessageDTO messageDTO, string path);
         public Task<IEnumerable<SendMessage>> GetAllChats(int id, string YouUsername);
-        /*public Task<IEnumerable<SendMessage>> GetAllContacts();
-        public Task<IEnumerable<SendMessage>> GetByUserIdMessages(int id);*/
+        public Task<string> UpdateSendMessage(int id, SendMessageDTO messageDTO, string path, int MessageId);
+        public Task<bool> DeleteSendMessage(int id, string YouUsername, int MessageId);
     }
 }

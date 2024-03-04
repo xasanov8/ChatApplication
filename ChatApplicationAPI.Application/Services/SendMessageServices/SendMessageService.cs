@@ -60,5 +60,48 @@ namespace ChatApplicationAPI.Application.Services.SendMessageServices
             return null;
         }
 
+        public async Task<string> UpdateSendMessage(int id, SendMessageDTO messageDTO, string path, int MessageId)
+        {
+            var MeUserName = await _userRepository.GetByAny(x => x.Id == id);
+
+            var message = await _repository.GetByAny(x =>
+            ((x.MeUsername == MeUserName.Username && x.YouUsername == messageDTO.YouUsername) ||
+            (x.MeUsername == messageDTO.YouUsername && x.YouUsername == MeUserName.Username)) &&
+            (x.Id == MessageId)
+                );
+
+
+            if (message != null)
+            {
+                message.StringMessage = messageDTO.StringMessage;
+                message.Path = path;
+
+                await _repository.Update(message);
+
+                return "UpdateMessage";
+            }
+            return "Error Model";
+        }
+
+        public async Task<bool> DeleteSendMessage(int id, string YouUsername, int MessageId)
+        {
+            var MeUserName = await _userRepository.GetByAny(x => x.Id == id);
+
+            var message = await _repository.GetByAny(x =>
+            ((x.MeUsername == MeUserName.Username && x.YouUsername == YouUsername) ||
+            (x.MeUsername == YouUsername && x.YouUsername == MeUserName.Username)) && 
+            (x.Id == MessageId)
+                );
+
+
+            if (message != null)
+            {
+                var result = await _repository.Delete(x => x.Id == MessageId);
+                
+                return true;
+            }
+            return false;
+        }
     }
+
 }

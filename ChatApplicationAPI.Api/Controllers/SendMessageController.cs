@@ -25,11 +25,20 @@ namespace ChatApplicationAPI.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<string>> AddSendMessage(string token, [FromForm] SendMessageDTO sendMessageDTO, IFormFile path)
+        
+        public async Task<ActionResult<string>> AddSendMessage(string token, [FromForm] SendMessageDTO sendMessageDTO,  IFormFile? path)
         {
-            SendMessageExternalService service = new SendMessageExternalService(_env);
+            string picturePath;
+            if (path != null)
+            {
+                SendMessageExternalService service = new SendMessageExternalService(_env);
 
-            string picturePath = await service.AddGetPath(path);
+                picturePath = await service.AddGetPath(path);
+            }
+            else
+            {
+                picturePath = null;
+            }
 
             int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
 
@@ -37,6 +46,8 @@ namespace ChatApplicationAPI.Api.Controllers
 
             return Ok(result);
         }
+
+
         [HttpGet]
         public async Task<IEnumerable<SendMessage>> GetAllMessages(string token, string YouUsername)
         {
@@ -45,6 +56,36 @@ namespace ChatApplicationAPI.Api.Controllers
             var result = await _messageService.GetAllChats(id, YouUsername);
 
             return result;
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<string>> UpdateSendMessage(string token, [FromForm] SendMessageDTO messageDTO, IFormFile? path, int MessageId)
+        {
+            string picturePath;
+            if (path != null)
+            {
+                SendMessageExternalService service = new SendMessageExternalService(_env);
+
+                picturePath = await service.AddGetPath(path);
+            }
+            else
+            {
+                picturePath = null;
+            }
+
+            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+
+            var result = _messageService.UpdateSendMessage(id, messageDTO, picturePath, MessageId).Result;
+
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult<bool>> DeleteSendMessage(string token, string YouUsername, int MessageId)
+        {
+            int id = int.Parse(DecodeJwtToken(token, "sjdfnsdljldfoisdfisdfidsfbiasbfibfidfpjfhfidsfbiasdsabhfbhabibapigbpdbgajdfpjfhdsabhfbh"));
+
+            return await _messageService.DeleteSendMessage(id, YouUsername, MessageId);
         }
 
         private string DecodeJwtToken(string token, string secretKey)
