@@ -1,4 +1,5 @@
-﻿ using ChatApplicationAPI.Application.Services.UserServices;
+﻿using ChatApplicationAPI.Application.Services.PasswordHash;
+using ChatApplicationAPI.Application.Services.UserServices;
 using ChatApplicationAPI.Domain.Entities.DTOs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -18,11 +19,13 @@ namespace ChatApplicationAPI.Application.Services.AuthServices
     {
         private readonly IConfiguration _conf;
         private readonly IUserService _userService;
+        private readonly IPasswordHashing _passwordHashing;
 
-        public AuthService(IConfiguration conf, IUserService userService)
+        public AuthService(IConfiguration conf, IUserService userService, IPasswordHashing passwordHashing)
         {
             _conf = conf;
             _userService = userService;
+            _passwordHashing = passwordHashing;
         }
 
         public async Task<ResponseLogin> GenerateToken(RequestLogin user)
@@ -113,7 +116,7 @@ namespace ChatApplicationAPI.Application.Services.AuthServices
 
             if (result == null) return false;
 
-            if (user.PhoneNumber == result.PhoneNumber && user.Password == result.Password)
+            if (user.PhoneNumber == result.PhoneNumber && _passwordHashing.Verify(result.Password, user.Password, result.Salt))
             {
                 return true;
             }

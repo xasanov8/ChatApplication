@@ -1,4 +1,5 @@
 ﻿using ChatApplicationAPI.Application.Services.AuthServices;
+using ChatApplicationAPI.Application.Services.PasswordHash;
 using ChatApplicationAPI.Application.Services.SendMessageServices;
 using ChatApplicationAPI.Application.Services.UserServices;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ namespace ChatApplicationAPI.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISendMessageService, SendMessageService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPasswordHashing, PasswordHashing>();
 
             return services;
         }

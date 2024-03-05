@@ -1,4 +1,5 @@
 ﻿using ChatApplicationAPI.Application.Abstractions.IRepositories;
+using ChatApplicationAPI.Application.Services.PasswordHash;
 using ChatApplicationAPI.Application.Services.SendMessageServices;
 using ChatApplicationAPI.Domain.Entities.DTOs;
 using ChatApplicationAPI.Domain.Entities.Models;
@@ -20,24 +21,30 @@ namespace ChatApplicationAPI.Application.Services.UserServices
         private readonly IUserRepository _userRepository;
         private readonly ISendMessageRepository _messageRepository;
         private readonly ISendMessageService _sendMessageService;
+        private readonly IPasswordHashing _passwordHashing;
 
-        public UserService(IUserRepository userRepository, ISendMessageRepository messageRepository, ISendMessageService sendMessageService)
+        public UserService(IUserRepository userRepository, ISendMessageRepository messageRepository, ISendMessageService sendMessageService, IPasswordHashing passwordHashing)
         {
             _userRepository = userRepository;
             _messageRepository = messageRepository;
             _sendMessageService = sendMessageService;
+            _passwordHashing = passwordHashing;
         }
 
         public async Task<string> Create(UserDTO userDTO)
         {
             if (_userRepository.GetByAny(x => x.Username == userDTO.Username).Result == null && _userRepository.GetByAny(x => x.PhoneNumber == userDTO.PhoneNumber).Result == null)
             {
+                var salt = Guid.NewGuid().ToString();
+                var password = _passwordHashing.Encrypt(userDTO.Password, salt);
+
                 var model = new User()
                 {
                     FullName = userDTO.FullName,
                     PhoneNumber = userDTO.PhoneNumber,
-                    Password = userDTO.Password,
+                    Password = password,
                     Username = userDTO.Username,
+                    Salt = salt,
                     Role = userDTO.Role,
                 };
 
@@ -125,10 +132,12 @@ namespace ChatApplicationAPI.Application.Services.UserServices
                 {
                     if ((await _userRepository.GetByAny(x => x.Username == userDTO.Username)) == null)
                     {
+                        var password = _passwordHashing.Encrypt(userDTO.Password, result.Salt);
+
                         result.FullName = userDTO.FullName;
                         result.PhoneNumber = userDTO.PhoneNumber;
                         result.Username = userDTO.Username;
-                        result.Password = userDTO.Password;
+                        result.Password = password;
                         result.Role = userDTO.Role;
 
                         await _userRepository.Update(result);
@@ -176,7 +185,8 @@ namespace ChatApplicationAPI.Application.Services.UserServices
             var result = await _userRepository.GetByAny(x => x.Id == id);
             if (result != null)
             {
-                result.Password = password;
+                var pass = _passwordHashing.Encrypt(password, result.Salt);
+                result.Password = pass;
                 await _userRepository.Update(result);
                 return "Update Password";
             }

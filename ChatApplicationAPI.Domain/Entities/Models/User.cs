@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ChatApplicationAPI.Domain.Entities.Models
@@ -18,6 +19,9 @@ namespace ChatApplicationAPI.Domain.Entities.Models
 
         [MinLength(6)]
         public string Password { get; set; }
+
+        [JsonIgnore]
+        public string Salt { get; set; }
         public string Role { get; set; }
         public bool Spam { get; set; } = false;
     }
